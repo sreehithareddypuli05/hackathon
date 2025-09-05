@@ -1,1445 +1,423 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Health Record Management System</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Health Record System</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
+  <!-- QR Code Generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <!-- QR Code Scanner -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
-        .language-selector {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 25px;
-            padding: 8px 16px;
-            color: white;
-            backdrop-filter: blur(10px);
-        }
-
-        .user-type-selection {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .user-type-card {
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            min-width: 280px;
-        }
-
-        .user-type-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 45px rgba(0,0,0,0.2);
-        }
-
-        .user-type-card.active {
-            background: rgba(103, 126, 234, 0.9);
-            color: white;
-        }
-
-        .user-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .module {
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            display: none;
-        }
-
-        .module.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-group input.error {
-            border-color: #dc3545;
-            background-color: #ffebee;
-        }
-
-        .form-group input.valid {
-            border-color: #28a745;
-            background-color: #e8f5e8;
-        }
-
-        .error-message {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
-        }
-
-        .success-message {
-            color: #28a745;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-block;
-            text-decoration: none;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            margin-left: 10px;
-        }
-
-        .btn-login {
-            background: #28a745;
-            margin-top: 20px;
-        }
-
-        .qr-display {
-            text-align: center;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        .qr-code {
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            display: inline-block;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .health-records {
-            display: grid;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .record-card {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .record-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        .record-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .record-date {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-
-        .record-doctor {
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .login-toggle {
-            text-align: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(103, 126, 234, 0.1);
-            border-radius: 10px;
-        }
-
-        .login-toggle a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .login-toggle a:hover {
-            text-decoration: underline;
-        }
-
-        .worker-login {
-            display: none;
-        }
-
-        .sdg-banner {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            text-align: center;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2.5em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .user-type-selection {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .user-type-card {
-                width: 100%;
-                max-width: 300px;
-            }
-            
-            .container {
-                padding: 15px;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-        }
-
-        .camera-section {
-            text-align: center;
-            padding: 40px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        .camera-icon {
-            font-size: 4em;
-            color: #667eea;
-            margin-bottom: 20px;
-        }
-
-        .access-request {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .access-request h4 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-
-        .access-buttons {
-            margin-top: 15px;
-        }
-
-        .btn-approve {
-            background: #28a745;
-            margin-right: 10px;
-        }
-
-        .btn-deny {
-            background: #dc3545;
-        }
-
-        .file-upload {
-            border: 2px dashed #667eea;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .file-upload:hover {
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        .file-upload.dragover {
-            background: rgba(102, 126, 234, 0.2);
-            border-color: #764ba2;
-        }
-    </style>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh; color: #333;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .header { text-align: center; color: white; margin-bottom: 30px; position: relative; }
+    .login-btn {
+      position: absolute; top: 20px; right: 20px;
+      background: #28a745; color: white; border: none;
+      padding: 10px 20px; border-radius: 8px; cursor: pointer;
+      font-weight: 600;
+    }
+    .user-type-selection { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+    .user-type-card { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 30px; cursor: pointer; transition: 0.3s; min-width: 250px; text-align: center; }
+    .user-type-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .module { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 30px; margin-bottom: 20px; display: none; }
+    .module.active { display: block; }
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; margin: 5px; cursor: pointer; font-weight: 600; }
+    .btn-login { background: #28a745; color: white; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; }
+    input, select {
+      width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px;
+      font-size: 16px; transition: 0.3s; outline: none;
+    }
+    input:focus, select:focus {
+      border-color: #667eea; box-shadow: 0 0 5px rgba(102,126,234,0.3);
+    }
+    #reader, #workerReader { width: 300px; margin: 20px auto; }
+    .record-card { background: #f8f9fa; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin: 5px 0; }
+    .file-upload { border: 2px dashed #667eea; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; background: #f8f9fa; }
+    .file-item { background: #fff; border: 1px solid #ddd; padding: 8px; border-radius: 6px; margin-bottom: 8px; }
+    .search-filter { margin: 15px 0; display: flex; gap: 10px; }
+  </style>
 </head>
 <body>
-    <select class="language-selector" id="languageSelector">
-        <option value="en">English</option>
-        <option value="hi">हिंदी</option>
-        <option value="bn">বাংলা</option>
-        <option value="ml">മലയാളം</option>
-        <option value="or">ଓଡ଼ିଆ</option>
-    </select>
-
-    <div class="container">
-        <div class="header">
-            <h1 id="mainTitle">Digital Health Record Management System</h1>
-            <p id="subtitle">For Migrant Workers in Kerala</p>
-        </div>
-
-        <div class="sdg-banner">
-            <strong>🌍 Aligned with UN SDGs:</strong> Health & Well-being • Reduced Inequalities • Decent Work & Economic Growth
-        </div>
-
-        <!-- User Type Selection -->
-        <div class="user-type-selection" id="userTypeSelection">
-            <div class="user-type-card" onclick="selectUserType('worker')">
-                <span class="user-icon">👷‍♂️</span>
-                <h3>Migrant Worker</h3>
-                <p>Register & manage your health records</p>
-            </div>
-            <div class="user-type-card" onclick="selectUserType('doctor')">
-                <span class="user-icon">👩‍⚕️</span>
-                <h3>Doctor/Hospital</h3>
-                <p>Access patient records with consent</p>
-            </div>
-            <div class="user-type-card" onclick="selectUserType('admin')">
-                <span class="user-icon">⚙️</span>
-                <h3>Admin</h3>
-                <p>System management & analytics</p>
-            </div>
-        </div>
-
-        <!-- Worker Module -->
-        <div id="workerModule" class="module">
-            <h2>👷‍♂️ Worker Module</h2>
-            
-            <!-- Worker Login -->
-            <div id="workerLogin" class="worker-login">
-                <h3>Login to Your Account</h3>
-                <form id="workerLoginForm">
-                    <div class="form-group">
-                        <label>Health ID</label>
-                        <input type="text" id="loginHealthId" placeholder="Enter your Health ID (e.g., HW12345678)" required>
-                        <div class="error-message" id="loginHealthIdError">Please enter a valid Health ID</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone Number</label>
-                        <input type="tel" id="loginPhone" placeholder="Enter your registered phone number" required>
-                        <div class="error-message" id="loginPhoneError">Please enter your registered phone number</div>
-                    </div>
-                    <button type="submit" class="btn btn-login">🔐 Login to Dashboard</button>
-                </form>
-                
-                <div class="login-toggle">
-                    <p>Don't have an account? <a href="#" onclick="showRegistration()">Register Here</a></p>
-                </div>
-            </div>
-
-            <!-- Registration Form -->
-            <div id="workerRegistration">
-                <h3>New Worker Registration</h3>
-                <form id="workerRegForm">
-                    <div class="form-group">
-                        <label>Full Name *</label>
-                        <input type="text" id="workerName" placeholder="Enter your full name" required>
-                        <div class="error-message" id="nameError">Please enter your full name</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Phone Number *</label>
-                        <input type="tel" id="workerPhone" placeholder="Enter 10-digit mobile number" maxlength="10" required>
-                        <div class="error-message" id="phoneError">Please enter exactly 10 digits</div>
-                        <div class="success-message" id="phoneSuccess">✓ Valid phone number</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Aadhaar Number *</label>
-                        <input type="text" id="workerAadhaar" placeholder="Enter 12-digit Aadhaar number" maxlength="12" required>
-                        <div class="error-message" id="aadhaarError">Please enter exactly 12 digits</div>
-                        <div class="success-message" id="aadhaarSuccess">✓ Valid Aadhaar number</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Home State *</label>
-                        <select id="workerState" required>
-                            <option value="">Select Your Home State</option>
-                            <option value="bihar">Bihar</option>
-                            <option value="west_bengal">West Bengal</option>
-                            <option value="assam">Assam</option>
-                            <option value="odisha">Odisha</option>
-                            <option value="uttar_pradesh">Uttar Pradesh</option>
-                            <option value="jharkhand">Jharkhand</option>
-                            <option value="chhattisgarh">Chhattisgarh</option>
-                        </select>
-                        <div class="error-message" id="stateError">Please select your home state</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Current Location (Kerala) *</label>
-                        <input type="text" id="workerLocation" placeholder="e.g., Kochi, Kerala" required>
-                        <div class="error-message" id="locationError">Please enter your current location</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Age</label>
-                        <input type="number" id="workerAge" placeholder="Enter your age" min="18" max="65">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Gender</label>
-                        <select id="workerGender">
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <button type="submit" class="btn" id="registerBtn">🎯 Register & Generate Health ID</button>
-                </form>
-                
-                <div class="login-toggle">
-                    <p>Already have an account? <a href="#" onclick="showLogin()">Login Here</a></p>
-                </div>
-            </div>
-
-            <!-- Health ID Display -->
-            <div id="healthIdDisplay" style="display: none;">
-                <h3>🎉 Registration Successful!</h3>
-                <div class="qr-display">
-                    <div class="qr-code" id="qrCodeContainer">
-                        <!-- QR code will be generated here -->
-                    </div>
-                    <p><strong>Your Health ID:</strong> <span id="healthIdNumber" style="font-size: 1.2em; color: #667eea; font-weight: bold;"></span></p>
-                    <p><strong>Name:</strong> <span id="displayName"></span></p>
-                    <p style="margin-top: 15px; color: #666;">📱 Save this QR code and Health ID - you'll need them to login and for doctor visits</p>
-                    <button class="btn btn-secondary" onclick="downloadHealthCard()" style="margin-top: 10px;">📱 Download Health Card</button>
-                </div>
-            </div>
-
-            <!-- Worker Dashboard -->
-            <div id="workerDashboard" style="display: none;">
-                <h3>📋 Your Health Dashboard</h3>
-                
-                <!-- Quick Info Card -->
-                <div class="record-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h4 id="dashboardName">Welcome back!</h4>
-                            <p><strong>Health ID:</strong> <span id="dashboardHealthId"></span></p>
-                            <p><strong>Phone:</strong> <span id="dashboardPhone"></span></p>
-                        </div>
-                        <div class="qr-code" id="dashboardQR" style="background: white; padding: 10px; border-radius: 8px;">
-                            <!-- User's QR code here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Upload Medical Records -->
-                <div id="uploadRecords">
-                    <h4>📄 Upload New Medical Records</h4>
-                    <div class="file-upload" id="fileUpload">
-                        <p>📄 Drag & drop files here or click to browse</p>
-                        <p><small>Supported: PDF, JPG, PNG (Max 10MB each)</small></p>
-                        <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-                    </div>
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label>Record Type</label>
-                        <select id="recordType">
-                            <option value="prescription">Prescription</option>
-                            <option value="lab_report">Lab Report</option>
-                            <option value="xray">X-Ray</option>
-                            <option value="scan">CT/MRI Scan</option>
-                            <option value="vaccination">Vaccination Certificate</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <button class="btn" onclick="uploadFile()">📤 Upload Records</button>
-                </div>
-
-                <!-- View Records -->
-                <div id="viewRecords" style="margin-top: 30px;">
-                    <h4>🏥 Your Medical History</h4>
-                    <div class="health-records" id="recordsList">
-                        <!-- Records will be populated here -->
-                    </div>
-                </div>
-
-                <!-- Access Requests -->
-                <div id="accessRequests" style="margin-top: 30px;">
-                    <h4>🔔 Doctor Access Requests</h4>
-                    <div id="requestsList">
-                        <!-- Requests will be populated here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Doctor Module -->
-        <div id="doctorModule" class="module">
-            <h2>👩‍⚕️ Doctor Module</h2>
-            
-            <!-- Doctor Login -->
-            <div id="doctorLogin">
-                <h3>Doctor Login</h3>
-                <form id="doctorLoginForm">
-                    <div class="form-group">
-                        <label>Hospital ID *</label>
-                        <input type="text" id="hospitalId" placeholder="Enter hospital registration ID" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Doctor Name *</label>
-                        <input type="text" id="doctorName" placeholder="Enter your full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Medical License Number *</label>
-                        <input type="text" id="licenseNumber" placeholder="Enter medical license number" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Specialization</label>
-                        <select id="specialization">
-                            <option value="">Select Specialization</option>
-                            <option value="general">General Medicine</option>
-                            <option value="cardiology">Cardiology</option>
-                            <option value="orthopedic">Orthopedic</option>
-                            <option value="neurology">Neurology</option>
-                            <option value="pediatrics">Pediatrics</option>
-                            <option value="gynecology">Gynecology</option>
-                            <option value="emergency">Emergency Medicine</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn">🏥 Login to Doctor Portal</button>
-                </form>
-            </div>
-
-            <!-- QR Scanner -->
-            <div id="qrScanner" style="display: none;">
-                <h3>📱 Scan Patient's Health ID</h3>
-                <div class="camera-section">
-                    <div class="camera-icon">📱</div>
-                    <p>Ask patient to show their QR code or Health ID</p>
-                    <input type="text" placeholder="Enter Health ID manually (e.g., HW12345678)" id="manualHealthId" style="margin-top: 15px;">
-                    <br><br>
-                    <button class="btn" onclick="requestPatientAccess()">🔍 Request Patient Access</button>
-                </div>
-            </div>
-
-            <!-- Patient Records View -->
-            <div id="patientRecords" style="display: none;">
-                <h3>📋 Patient Medical History</h3>
-                <div id="patientInfo">
-                    <!-- Patient info will be loaded here -->
-                </div>
-                <div id="patientRecordsList">
-                    <!-- Patient records will be loaded here -->
-                </div>
-                
-                <!-- Add New Record -->
-                <h4 style="margin-top: 30px;">➕ Add New Medical Record</h4>
-                <form id="newRecordForm">
-                    <div class="form-group">
-                        <label>Diagnosis</label>
-                        <textarea id="diagnosis" rows="3" placeholder="Enter diagnosis details..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Prescription & Treatment</label>
-                        <textarea id="prescription" rows="4" placeholder="Enter prescription and treatment plan..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Next Visit Date</label>
-                        <input type="date" id="nextVisit">
-                    </div>
-                    <div class="form-group">
-                        <label>Notes</label>
-                        <textarea id="doctorNotes" rows="2" placeholder="Additional notes..."></textarea>
-                    </div>
-                    <button type="submit" class="btn">💾 Save Medical Record</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Admin Module -->
-        <div id="adminModule" class="module">
-            <h2>⚙️ Admin Dashboard</h2>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">1,247</div>
-                    <div>Registered Workers</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">89</div>
-                    <div>Registered Doctors</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">3,451</div>
-                    <div>Total Health Records</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">156</div>
-                    <div>Today's Access Requests</div>
-                </div>
-            </div>
-
-            <!-- System Logs -->
-            <div style="margin-top: 30px;">
-                <h3>📊 Recent System Activity</h3>
-                <div id="systemLogs">
-                    <div class="record-card">
-                        <div class="record-header">
-                            <span class="record-doctor">Dr. Sharma accessed records</span>
-                            <span class="record-date">2 mins ago</span>
-                        </div>
-                        <p>Patient: HW****1234 | Hospital: KIMS | Status: Approved</p>
-                    </div>
-                    <div class="record-card">
-                        <div class="record-header">
-                            <span class="record-doctor">New worker registration</span>
-                            <span class="record-date">5 mins ago</span>
-                        </div>
-                        <p>Worker ID: HW****567 | Location: Kochi | State: Bihar</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="header">
+      <h1>Digital Health Record Management</h1>
+      <p>Secure access for Patients, Doctors, and Health Workers</p>
+      <button class="login-btn" onclick="showLoginSelector()">Login</button>
     </div>
 
-    <script>
-        // Global state
-        let currentUser = null;
-        let currentModule = null;
-        let registeredWorkers = JSON.parse(localStorage.getItem('registeredWorkers') || '[]');
-        let healthRecords = JSON.parse(localStorage.getItem('healthRecords') || '[]');
+    <!-- User Type Selection -->
+    <div class="user-type-selection">
+      <div class="user-type-card" onclick="showModule('patient')">🧑‍⚕️<h3>Patient Registration</h3></div>
+      <div class="user-type-card" onclick="showModule('doctor')">👨‍⚕️<h3>Doctor</h3></div>
+      <div class="user-type-card" onclick="showModule('worker')">👷<h3>Health Worker Module</h3></div>
+    </div>
 
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            setupEventListeners();
-            loadSampleData();
-        });
+    <!-- Login Selector -->
+    <div id="loginSelector" class="module">
+      <h2>Login</h2>
+      <button class="btn btn-login" onclick="showModule('patientLogin')">Patient Login</button>
+      <button class="btn btn-login" onclick="showModule('doctorLogin')">Doctor Login</button>
+      <button class="btn btn-login" onclick="showModule('workerLogin')">Health Worker Login</button>
+    </div>
 
-        function setupEventListeners() {
-            // Input validation listeners
-            document.getElementById('workerPhone').addEventListener('input', validatePhone);
-            document.getElementById('workerAadhaar').addEventListener('input', validateAadhaar);
-            document.getElementById('workerName').addEventListener('input', validateName);
-            document.getElementById('workerState').addEventListener('change', validateState);
-            document.getElementById('workerLocation').addEventListener('input', validateLocation);
+    <!-- Patient Registration -->
+    <div id="patient" class="module">
+      <h2>Patient Registration</h2>
+      <div class="form-group"><label>Full Name *</label><input type="text" id="patientName"></div>
+      <div class="form-group"><label>Phone Number *</label><input type="text" id="patientPhone"></div>
+      <div class="form-group"><label>Aadhar Number *</label><input type="text" id="patientAadhar"></div>
+      <div class="form-group"><label>Email (Optional)</label><input type="email" id="patientEmail"></div>
+      <button class="btn btn-login" onclick="registerPatient()">Register & Generate QR</button>
+      <div id="qrArea" style="display:none; margin-top:15px;">
+        <h3>Your QR Code</h3>
+        <div id="qrCode"></div>
+      </div>
+    </div>
 
-            // Form submissions
-            document.getElementById('workerRegForm').addEventListener('submit', registerWorker);
-            document.getElementById('workerLoginForm').addEventListener('submit', loginWorker);
-            document.getElementById('doctorLoginForm').addEventListener('submit', loginDoctor);
-            document.getElementById('newRecordForm').addEventListener('submit', addNewRecord);
+    <!-- Patient Login -->
+    <div id="patientLogin" class="module">
+      <h2>Patient Login</h2>
+      <div class="form-group"><label>Full Name</label><input type="text" id="loginPatientName"></div>
+      <div class="form-group"><label>Phone Number</label><input type="text" id="loginPatientPhone"></div>
+      <button class="btn btn-login" onclick="patientLogin()">Login</button>
+    </div>
 
-            // File upload
-            const fileUpload = document.getElementById('fileUpload');
-            const fileInput = document.getElementById('fileInput');
-            
-            if (fileUpload && fileInput) {
-                fileUpload.addEventListener('click', () => fileInput.click());
-                fileUpload.addEventListener('dragover', handleDragOver);
-                fileUpload.addEventListener('dragleave', handleDragLeave);
-                fileUpload.addEventListener('drop', handleDrop);
-                fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-            }
-        }
+    <!-- Patient Dashboard -->
+    <div id="patientDashboard" class="module">
+      <h2>Patient Dashboard</h2>
+      <div id="patientDetails"></div>
+      <h3>Your QR Code</h3><div id="patientDashboardQR"></div>
+      <div class="search-filter">
+        <input type="text" id="patientSearch" placeholder="Search files...">
+        <select id="patientFilter">
+          <option value="all">All</option>
+          <option value="doctor">Doctor</option>
+          <option value="worker">Worker</option>
+          <option value="patient">Patient</option>
+        </select>
+      </div>
+      <h3>Your Files</h3><div id="patientFiles"></div>
+      <h3>Upload Past Documents</h3>
+      <div class="file-upload" id="patientUploadArea">📂 Upload your files<input type="file" id="patientFileInput" multiple style="display:none;"></div>
+      <button class="btn btn-secondary" onclick="backToHome()">Back to Home</button>
+    </div>
 
-        // Validation functions
-        function validatePhone() {
-            const phone = document.getElementById('workerPhone');
-            const error = document.getElementById('phoneError');
-            const success = document.getElementById('phoneSuccess');
-            
-            const phoneRegex = /^\d{10}$/;
-            
-            if (phone.value === '') {
-                phone.classList.remove('error', 'valid');
-                error.style.display = 'none';
-                success.style.display = 'none';
-                return false;
-            }
-            
-            if (phoneRegex.test(phone.value)) {
-                phone.classList.remove('error');
-                phone.classList.add('valid');
-                error.style.display = 'none';
-                success.style.display = 'block';
-                return true;
-            } else {
-                phone.classList.remove('valid');
-                phone.classList.add('error');
-                error.style.display = 'block';
-                error.textContent = 'Please enter exactly 10 digits';
-                success.style.display = 'none';
-                return false;
-            }
-        }
+    <!-- Doctor Registration -->
+    <div id="doctor" class="module">
+      <h2>Doctor Registration</h2>
+      <div class="form-group"><label>Doctor Name</label><input type="text" id="doctorName"></div>
+      <div class="form-group"><label>Specialization</label>
+        <select id="doctorSpec">
+          <option value="General">General</option>
+          <option value="Cardiology">Cardiology</option>
+          <option value="Orthopedics">Orthopedics</option>
+          <option value="Pediatrics">Pediatrics</option>
+          <option value="Dermatology">Dermatology</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Hospital (Kerala)</label><input type="text" id="doctorHospital"></div>
+      <button class="btn btn-login" onclick="registerDoctor()">Register</button>
+    </div>
 
-        function validateAadhaar() {
-            const aadhaar = document.getElementById('workerAadhaar');
-            const error = document.getElementById('aadhaarError');
-            const success = document.getElementById('aadhaarSuccess');
-            
-            const aadhaarRegex = /^\d{12}$/;
-            
-            if (aadhaar.value === '') {
-                aadhaar.classList.remove('error', 'valid');
-                error.style.display = 'none';
-                success.style.display = 'none';
-                return false;
-            }
-            
-            if (aadhaarRegex.test(aadhaar.value)) {
-                aadhaar.classList.remove('error');
-                aadhaar.classList.add('valid');
-                error.style.display = 'none';
-                success.style.display = 'block';
-                return true;
-            } else {
-                aadhaar.classList.remove('valid');
-                aadhaar.classList.add('error');
-                error.style.display = 'block';
-                error.textContent = 'Please enter exactly 12 digits';
-                success.style.display = 'none';
-                return false;
-            }
-        }
+    <!-- Doctor Login -->
+    <div id="doctorLogin" class="module">
+      <h2>Doctor Login</h2>
+      <div class="form-group"><label>Doctor ID</label><input type="text" id="loginDoctorID"></div>
+      <button class="btn btn-login" onclick="doctorLogin()">Login</button>
+    </div>
 
-        function validateName() {
-            const name = document.getElementById('workerName');
-            const error = document.getElementById('nameError');
-            
-            if (name.value.trim().length < 2) {
-                name.classList.add('error');
-                error.style.display = 'block';
-                error.textContent = 'Please enter a valid name';
-                return false;
-            } else {
-                name.classList.remove('error');
-                name.classList.add('valid');
-                error.style.display = 'none';
-                return true;
-            }
-        }
+   <!-- Doctor Dashboard -->
+<div id="doctorDashboard" class="module">
+  <h2>Doctor Dashboard</h2>
+  <div id="doctorProfile"></div>
+  <div class="search-filter">
+    <input type="text" id="doctorSearch" placeholder="Search files...">
+    <select id="doctorFilter"></select>
+  </div>
+  <h3>Your Uploaded Files</h3><div id="doctorFiles"></div>
+  
+ 
+  <h3>Scan Patient QR</h3>
+<button class="btn btn-login" onclick="startDoctorScan()">📷 Scan Patient QR</button>
+<button id="doctorStopBtn" class="btn btn-secondary" style="display:none;" onclick="stopDoctorScan()">✖ Stop</button>
+<div id="reader" style="display:none;"></div>
 
-        function validateState() {
-            const state = document.getElementById('workerState');
-            const error = document.getElementById('stateError');
-            
-            if (state.value === '') {
-                state.classList.add('error');
-                error.style.display = 'block';
-                return false;
-            } else {
-                state.classList.remove('error');
-                state.classList.add('valid');
-                error.style.display = 'none';
-                return true;
-            }
-        }
+  <input type="file" id="doctorFileInput" multiple>
+  <button class="btn btn-secondary" onclick="backToHome()">Logout</button>
+</div>
 
-        function validateLocation() {
-            const location = document.getElementById('workerLocation');
-            const error = document.getElementById('locationError');
-            
-            if (location.value.trim().length < 2) {
-                location.classList.add('error');
-                error.style.display = 'block';
-                return false;
-            } else {
-                location.classList.remove('error');
-                location.classList.add('valid');
-                error.style.display = 'none';
-                return true;
-            }
-        }
+    <!-- Worker Registration -->
+    <div id="worker" class="module">
+      <h2>Health Worker Registration</h2>
+      <div class="form-group"><label>Name</label><input type="text" id="workerName"></div>
+      <div class="form-group"><label>Phone</label><input type="text" id="workerPhone"></div>
+      <button class="btn btn-login" onclick="registerWorker()">Register</button>
+    </div>
 
-        function selectUserType(type) {
-            document.getElementById('userTypeSelection').style.display = 'none';
-            
-            document.querySelectorAll('.module').forEach(module => {
-                module.classList.remove('active');
-            });
-            
-            document.getElementById(type + 'Module').classList.add('active');
-            currentModule = type;
-            
-            if (type === 'worker') {
-                showLogin();
-            } else if (type === 'doctor') {
-                showDoctorLogin();
-            }
-        }
+    <!-- Worker Login -->
+    <div id="workerLogin" class="module">
+      <h2>Health Worker Login</h2>
+      <div class="form-group"><label>Worker ID</label><input type="text" id="loginWorkerID"></div>
+      <button class="btn btn-login" onclick="workerLogin()">Login</button>
+    </div>
 
-        function showLogin() {
-            document.getElementById('workerLogin').style.display = 'block';
-            document.getElementById('workerRegistration').style.display = 'none';
-            document.getElementById('healthIdDisplay').style.display = 'none';
-            document.getElementById('workerDashboard').style.display = 'none';
-        }
+  
 
-        function showRegistration() {
-            document.getElementById('workerLogin').style.display = 'none';
-            document.getElementById('workerRegistration').style.display = 'block';
-            document.getElementById('healthIdDisplay').style.display = 'none';
-            document.getElementById('workerDashboard').style.display = 'none';
-        }
+<!-- Worker Dashboard -->
+<div id="workerDashboard" class="module">
+  <h2>Health Worker Dashboard</h2>
+  <div id="workerProfile"></div>
+  <div class="search-filter">
+    <input type="text" id="workerSearch" placeholder="Search files...">
+    <select id="workerFilter"></select>
+  </div>
+  <h3>Your Uploaded Files</h3><div id="workerFiles"></div>
+  
+<h3>Scan Patient QR</h3>
+<button class="btn btn-login" onclick="startWorkerScan()">📷 Scan Patient QR</button>
+<button id="workerStopBtn" class="btn btn-secondary" style="display:none;" onclick="stopWorkerScan()">✖ Stop</button>
+<div id="workerReader" style="display:none;"></div>
 
-        function showDoctorLogin() {
-            document.getElementById('doctorLogin').style.display = 'block';
-        }
+  <input type="file" id="workerFileInput" multiple>
+  <button class="btn btn-secondary" onclick="backToHome()">Logout</button>
+</div>
 
-        function generateHealthId() {
-            const timestamp = Date.now().toString();
-            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            return 'HW' + timestamp.slice(-5) + random;
-        }
+  <script>
+    /* LocalStorage */
+    let patients = JSON.parse(localStorage.getItem("patients")) || {};
+    let doctors = JSON.parse(localStorage.getItem("doctors")) || {};
+    let workers = JSON.parse(localStorage.getItem("workers")) || {};
 
-        function generateQRCode(data, containerId) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            
-            container.innerHTML = '';
-            
-            // Create QR code using simple text representation for demo
-            // In production, use proper QR code library
-            const qrDiv = document.createElement('div');
-            qrDiv.style.cssText = `
-                width: 150px;
-                height: 150px;
-                background: #000;
-                color: #fff;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: monospace;
-                font-size: 10px;
-                word-break: break-all;
-                padding: 10px;
-                text-align: center;
-                border-radius: 8px;
-            `;
-            
-            // Create a simple QR-like pattern
-            const qrPattern = `
-                ■■■■■■■□□■■■■■■■
-                ■□□□□□■□■□■□□□□■
-                ■□■■■□■□□□■□■■■□■
-                ■□■■■□■□■□■□■■■□■
-                ■□■■■□■□□□■□■■■□■
-                ■□□□□□■□■□■□□□□□■
-                ■■■■■■■□□□■■■■■■■
-                □□□□□□□□□□□□□□□□□
-                ${data}
-            `;
-            
-            qrDiv.innerHTML = `<div style="line-height: 1;">${qrPattern}</div>`;
-            container.appendChild(qrDiv);
-        }
+    function saveData(){
+      localStorage.setItem("patients", JSON.stringify(patients));
+      localStorage.setItem("doctors", JSON.stringify(doctors));
+      localStorage.setItem("workers", JSON.stringify(workers));
+    }
 
-        function registerWorker(e) {
-            e.preventDefault();
-            
-            // Validate all fields
-            const isNameValid = validateName();
-            const isPhoneValid = validatePhone();
-            const isAadhaarValid = validateAadhaar();
-            const isStateValid = validateState();
-            const isLocationValid = validateLocation();
-            
-            if (!isNameValid || !isPhoneValid || !isAadhaarValid || !isStateValid || !isLocationValid) {
-                showNotification('Please fix the errors in the form', 'error');
-                return;
-            }
-            
-            const workerData = {
-                name: document.getElementById('workerName').value.trim(),
-                phone: document.getElementById('workerPhone').value,
-                aadhaar: document.getElementById('workerAadhaar').value,
-                state: document.getElementById('workerState').value,
-                location: document.getElementById('workerLocation').value.trim(),
-                age: document.getElementById('workerAge').value || null,
-                gender: document.getElementById('workerGender').value || null,
-                healthId: generateHealthId(),
-                registrationDate: new Date().toISOString(),
-                records: []
-            };
-            
-            // Check if phone or Aadhaar already exists
-            const existingWorker = registeredWorkers.find(w => 
-                w.phone === workerData.phone || w.aadhaar === workerData.aadhaar
-            );
-            
-            if (existingWorker) {
-                showNotification('Phone number or Aadhaar already registered', 'error');
-                return;
-            }
-            
-            // Save to storage
-            registeredWorkers.push(workerData);
-            localStorage.setItem('registeredWorkers', JSON.stringify(registeredWorkers));
-            
-            // Show success
-            document.getElementById('workerRegistration').style.display = 'none';
-            document.getElementById('healthIdDisplay').style.display = 'block';
-            
-            document.getElementById('healthIdNumber').textContent = workerData.healthId;
-            document.getElementById('displayName').textContent = workerData.name;
-            
-            generateQRCode(workerData.healthId, 'qrCodeContainer');
-            
-            currentUser = workerData;
-            showNotification('Registration successful! Save your Health ID: ' + workerData.healthId, 'success');
-            
-            // Auto login after registration
-            setTimeout(() => {
-                showWorkerDashboard(workerData);
-            }, 3000);
-        }
+    let currentPatient=null, currentDoctor=null, currentWorker=null;
+    let scanner, workerScanner;
 
-        function loginWorker(e) {
-            e.preventDefault();
-            
-            const healthId = document.getElementById('loginHealthId').value.trim();
-            const phone = document.getElementById('loginPhone').value.trim();
-            
-            const worker = registeredWorkers.find(w => 
-                w.healthId === healthId && w.phone === phone
-            );
-            
-            if (worker) {
-                currentUser = worker;
-                showWorkerDashboard(worker);
-                showNotification('Welcome back, ' + worker.name + '!', 'success');
-            } else {
-                showNotification('Invalid Health ID or phone number', 'error');
-                document.getElementById('loginHealthIdError').style.display = 'block';
-                document.getElementById('loginPhoneError').style.display = 'block';
-            }
-        }
+    function showModule(id){
+      document.querySelectorAll(".module").forEach(m=>m.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+    function showLoginSelector(){showModule("loginSelector");}
+    function backToHome(){location.reload();}
 
-        function showWorkerDashboard(worker) {
-            document.getElementById('workerLogin').style.display = 'none';
-            document.getElementById('workerRegistration').style.display = 'none';
-            document.getElementById('healthIdDisplay').style.display = 'none';
-            document.getElementById('workerDashboard').style.display = 'block';
-            
-            // Populate dashboard
-            document.getElementById('dashboardName').textContent = `Welcome, ${worker.name}!`;
-            document.getElementById('dashboardHealthId').textContent = worker.healthId;
-            document.getElementById('dashboardPhone').textContent = worker.phone;
-            
-            generateQRCode(worker.healthId, 'dashboardQR');
-            loadWorkerRecords(worker.healthId);
-            showAccessRequests();
-        }
+    /* ========== PATIENT ========= */
+    function registerPatient(){
+      let name=document.getElementById("patientName").value.trim();
+      let phone=document.getElementById("patientPhone").value.trim();
+      let aadhar=document.getElementById("patientAadhar").value.trim();
+      let email=document.getElementById("patientEmail").value.trim();
+      if(!name||!phone||!aadhar){alert("Fill all required fields");return;}
+      if(phone.length!==10){alert("Phone must be 10 digits");return;}
+      if(aadhar.length!==12){alert("Aadhar must be 12 digits");return;}
+      patients[aadhar]={name,phone,aadhar,email,files:[]};
+      saveData();
+      let qr=qrcode(0,'M'); qr.addData(JSON.stringify({aadhar})); qr.make();
+      document.getElementById("qrCode").innerHTML=qr.createImgTag(6);
+      document.getElementById("qrArea").style.display="block";
+      alert("Registered! Use Aadhar to login.");
+    }
+    function patientLogin(){
+      let name=document.getElementById("loginPatientName").value.trim();
+      let phone=document.getElementById("loginPatientPhone").value.trim();
+      let found=Object.values(patients).find(p=>p.name===name&&p.phone===phone);
+      if(!found){alert("Patient not found");return;}
+      currentPatient=found; showPatientDashboard();
+    }
+    function showPatientDashboard(){
+      showModule("patientDashboard");
+      document.getElementById("patientDetails").innerHTML=`<p><b>Name:</b> ${currentPatient.name}</p><p><b>Phone:</b> ${currentPatient.phone}</p><p><b>Aadhar:</b> ${currentPatient.aadhar}</p>`;
+      let qr=qrcode(0,'M'); qr.addData(JSON.stringify({aadhar:currentPatient.aadhar})); qr.make();
+      document.getElementById("patientDashboardQR").innerHTML=qr.createImgTag(4);
+      renderPatientFiles();
+    }
+    function renderPatientFiles(){
+      let list=document.getElementById("patientFiles"); list.innerHTML="";
+      let search=document.getElementById("patientSearch").value.toLowerCase();
+      let filter=document.getElementById("patientFilter").value;
+      let files=currentPatient.files.filter(f=>(f.name.toLowerCase().includes(search))&&(filter==="all"||f.uploader.includes(filter)));
+      if(files.length===0) list.innerHTML="<p>No matching files</p>";
+      files.forEach(f=>{list.innerHTML+=`<div class="record-card">${f.name} (${Math.round(f.size/1024)} KB) <i>by ${f.uploader}</i></div>`;});
+    }
+    document.getElementById("patientSearch").addEventListener("input",renderPatientFiles);
+    document.getElementById("patientFilter").addEventListener("change",renderPatientFiles);
+    document.getElementById("patientUploadArea").addEventListener("click",()=>document.getElementById("patientFileInput").click());
+    document.getElementById("patientFileInput").addEventListener("change",e=>{
+      let files=Array.from(e.target.files);
+      files.forEach(file=>{currentPatient.files.push({name:file.name,size:file.size,uploader:"patient"});});
+      patients[currentPatient.aadhar]=currentPatient; saveData(); renderPatientFiles();
+    });
 
-        function loginDoctor(e) {
-            e.preventDefault();
-            
-            const doctorData = {
-                hospitalId: document.getElementById('hospitalId').value,
-                name: document.getElementById('doctorName').value,
-                licenseNumber: document.getElementById('licenseNumber').value,
-                specialization: document.getElementById('specialization').value
-            };
-            
-            document.getElementById('doctorLogin').style.display = 'none';
-            document.getElementById('qrScanner').style.display = 'block';
-            
-            currentUser = doctorData;
-            showNotification('Doctor login successful!', 'success');
-        }
+    /* ========== DOCTOR ========= */
+    function registerDoctor(){
+      let name=document.getElementById("doctorName").value.trim();
+      let spec=document.getElementById("doctorSpec").value;
+      let hospital=document.getElementById("doctorHospital").value.trim();
+      if(!name||!hospital){alert("Fill all fields");return;}
+      let id="DOC"+Math.floor(1000+Math.random()*9000);
+      doctors[id]={id,name,spec,hospital,files:[]};
+      saveData();
+      alert("Doctor registered! ID: "+id);
+    }
+    function doctorLogin(){
+      let id=document.getElementById("loginDoctorID").value.trim();
+      if(!doctors[id]){alert("Invalid ID");return;}
+      currentDoctor=doctors[id]; showDoctorDashboard();
+    }
+    function showDoctorDashboard(){
+      showModule("doctorDashboard");
+      document.getElementById("doctorProfile").innerHTML=`<p><b>Name:</b> ${currentDoctor.name}</p><p><b>Specialization:</b> ${currentDoctor.spec}</p><p><b>Hospital:</b> ${currentDoctor.hospital}</p><p><b>ID:</b> ${currentDoctor.id}</p>`;
+      let filter=document.getElementById("doctorFilter"); filter.innerHTML="<option value='all'>All Patients</option>";
+      let uniquePatients=[...new Set(currentDoctor.files.map(f=>f.patientAadhar))];
+      uniquePatients.forEach(a=>filter.innerHTML+=`<option value='${a}'>${a}</option>`);
+      renderDoctorFiles();
+    }
+    function renderDoctorFiles(){
+      let list=document.getElementById("doctorFiles"); list.innerHTML="";
+      let search=document.getElementById("doctorSearch").value.toLowerCase();
+      let filter=document.getElementById("doctorFilter").value;
+      let files=currentDoctor.files.filter(f=>(f.name.toLowerCase().includes(search))&&(filter==="all"||f.patientAadhar===filter));
+      if(files.length===0) list.innerHTML="<p>No matching files</p>";
+      files.forEach(f=>{list.innerHTML+=`<div class="record-card">${f.name} (for ${f.patientAadhar})</div>`;});
+    }
+    document.getElementById("doctorSearch").addEventListener("input",renderDoctorFiles);
+    document.getElementById("doctorFilter").addEventListener("change",renderDoctorFiles);
+    document.getElementById("doctorFileInput").addEventListener("change",e=>{
+      let files=Array.from(e.target.files);
+      let aadhar=prompt("Enter patient Aadhar to attach files:");
+      if(!patients[aadhar]){alert("Invalid patient");return;}
+      files.forEach(file=>{
+        let rec={name:file.name,size:file.size,uploader:"doctor-"+currentDoctor.id,patientAadhar:aadhar};
+        patients[aadhar].files.push(rec); currentDoctor.files.push(rec);
+      });
+      saveData(); renderDoctorFiles();
+    });
 
-        function requestPatientAccess() {
-            const healthId = document.getElementById('manualHealthId').value.trim();
-            
-            if (!healthId) {
-                showNotification('Please enter a Health ID', 'error');
-                return;
-            }
-            
-            const patient = registeredWorkers.find(w => w.healthId === healthId);
-            
-            if (!patient) {
-                showNotification('Patient not found with this Health ID', 'error');
-                return;
-            }
-            
-            showNotification('Access request sent to patient. Waiting for approval...', 'info');
-            
-            // Simulate approval process
-            setTimeout(() => {
-                document.getElementById('qrScanner').style.display = 'none';
-                document.getElementById('patientRecords').style.display = 'block';
-                loadPatientRecords(patient);
-                showNotification('Patient approved access!', 'success');
-            }, 2000);
-        }
+    /* ========== WORKER ========= */
+    function registerWorker(){
+      let name=document.getElementById("workerName").value.trim();
+      let phone=document.getElementById("workerPhone").value.trim();
+      if(!name||!phone){alert("Fill all fields");return;}
+      if(phone.length!==10){alert("Phone must be 10 digits");return;}
+      let id="WRK"+Math.floor(1000+Math.random()*9000);
+      workers[id]={id,name,phone,files:[]}; saveData();
+      alert("Worker registered! ID: "+id);
+    }
+    function workerLogin(){
+      let id=document.getElementById("loginWorkerID").value.trim();
+      if(!workers[id]){alert("Invalid ID");return;}
+      currentWorker=workers[id]; showWorkerDashboard();
+    }
+    function showWorkerDashboard(){
+      showModule("workerDashboard");
+      document.getElementById("workerProfile").innerHTML=`<p><b>Name:</b> ${currentWorker.name}</p><p><b>Phone:</b> ${currentWorker.phone}</p><p><b>ID:</b> ${currentWorker.id}</p>`;
+      let filter=document.getElementById("workerFilter"); filter.innerHTML="<option value='all'>All Patients</option>";
+      let uniquePatients=[...new Set(currentWorker.files.map(f=>f.patientAadhar))];
+      uniquePatients.forEach(a=>filter.innerHTML+=`<option value='${a}'>${a}</option>`);
+      renderWorkerFiles();
+    }
+    function renderWorkerFiles(){
+      let list=document.getElementById("workerFiles"); list.innerHTML="";
+      let search=document.getElementById("workerSearch").value.toLowerCase();
+      let filter=document.getElementById("workerFilter").value;
+      let files=currentWorker.files.filter(f=>(f.name.toLowerCase().includes(search))&&(filter==="all"||f.patientAadhar===filter));
+      if(files.length===0) list.innerHTML="<p>No matching files</p>";
+      files.forEach(f=>{list.innerHTML+=`<div class="record-card">${f.name} (for ${f.patientAadhar})</div>`;});
+    }
+    document.getElementById("workerSearch").addEventListener("input",renderWorkerFiles);
+    document.getElementById("workerFilter").addEventListener("change",renderWorkerFiles);
+    document.getElementById("workerFileInput").addEventListener("change",e=>{
+      let files=Array.from(e.target.files);
+      let aadhar=prompt("Enter patient Aadhar to attach files:");
+      if(!patients[aadhar]){alert("Invalid patient");return;}
+      files.forEach(file=>{
+        let rec={name:file.name,size:file.size,uploader:"worker-"+currentWorker.id,patientAadhar:aadhar};
+        patients[aadhar].files.push(rec); currentWorker.files.push(rec);
+      });
+      saveData(); renderWorkerFiles();
+    });
+    /* Doctor QR Scan */
+/* Doctor QR Scan */
+/* Doctor QR Scan */
+function startDoctorScan() {
+  document.getElementById("reader").style.display = "block";
+  document.getElementById("doctorStopBtn").style.display = "inline-block";
+  if (scanner) { scanner.clear(); }
+  scanner = new Html5Qrcode("reader");
 
-        function loadPatientRecords(patient) {
-            const patientInfo = document.getElementById('patientInfo');
-            const recordsList = document.getElementById('patientRecordsList');
-            
-            patientInfo.innerHTML = `
-                <div class="record-card" style="background: linear-gradient(135deg, #28a745, #20c997); color: white;">
-                    <h4>Patient Information - Access Granted</h4>
-                    <p><strong>Name:</strong> ${patient.name}</p>
-                    <p><strong>Health ID:</strong> ${patient.healthId}</p>
-                    <p><strong>Age:</strong> ${patient.age || 'Not specified'} | <strong>Gender:</strong> ${patient.gender || 'Not specified'}</p>
-                    <p><strong>Home State:</strong> ${patient.state}</p>
-                    <p><strong>Current Location:</strong> ${patient.location}</p>
-                    <p><strong>Phone:</strong> ${patient.phone}</p>
-                </div>
-            `;
-            
-            // Load patient's medical records
-            const patientRecords = healthRecords.filter(r => r.patientHealthId === patient.healthId);
-            
-            if (patientRecords.length === 0) {
-                recordsList.innerHTML = `
-                    <div class="record-card">
-                        <p style="text-align: center; color: #666;">No previous medical records found. This will be the first record.</p>
-                    </div>
-                `;
-            } else {
-                recordsList.innerHTML = patientRecords.map(record => `
-                    <div class="record-card">
-                        <div class="record-header">
-                            <span class="record-doctor">${record.doctorName} - ${record.hospitalName}</span>
-                            <span class="record-date">${new Date(record.date).toLocaleDateString()}</span>
-                        </div>
-                        <p><strong>Diagnosis:</strong> ${record.diagnosis}</p>
-                        <p><strong>Prescription:</strong> ${record.prescription}</p>
-                        ${record.notes ? `<p><strong>Notes:</strong> ${record.notes}</p>` : ''}
-                    </div>
-                `).join('');
-            }
-        }
+  scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, decodedText => {
+    try {
+      let data = JSON.parse(decodedText);
+      if (patients[data.aadhar]) {
+        currentPatient = patients[data.aadhar]; // set current patient
+        stopDoctorScan();
+        showPatientDashboard(); // redirect to patient dashboard
+      } else {
+        alert("Patient not found!");
+      }
+    } catch (e) { alert("Invalid QR"); stopDoctorScan(); }
+  });
+}
 
-        function addNewRecord(e) {
-            e.preventDefault();
-            
-            const newRecord = {
-                id: Date.now().toString(),
-                patientHealthId: document.getElementById('patientInfo').innerHTML.includes('Health ID') ? 
-                    document.getElementById('patientInfo').innerHTML.match(/Health ID:<\/strong>\s*(\w+)/)[1] : 'HW12345678',
-                doctorName: currentUser.name,
-                hospitalName: `Hospital (${currentUser.hospitalId})`,
-                date: new Date().toISOString(),
-                diagnosis: document.getElementById('diagnosis').value,
-                prescription: document.getElementById('prescription').value,
-                nextVisit: document.getElementById('nextVisit').value,
-                notes: document.getElementById('doctorNotes').value
-            };
-            
-            healthRecords.push(newRecord);
-            localStorage.setItem('healthRecords', JSON.stringify(healthRecords));
-            
-            showNotification('Medical record saved successfully!', 'success');
-            document.getElementById('newRecordForm').reset();
-            
-            // Reload patient records to show the new one
-            const patient = registeredWorkers.find(w => w.healthId === newRecord.patientHealthId);
-            if (patient) {
-                loadPatientRecords(patient);
-            }
-        }
+function stopDoctorScan(){
+  if(scanner){
+    scanner.stop().then(()=>{
+      document.getElementById("reader").style.display="none";
+      document.getElementById("doctorStopBtn").style.display="none";
+    });
+  }
+}
 
-        function loadWorkerRecords(healthId) {
-            const recordsList = document.getElementById('recordsList');
-            const workerRecords = healthRecords.filter(r => r.patientHealthId === healthId);
-            
-            if (workerRecords.length === 0) {
-                recordsList.innerHTML = `
-                    <div class="record-card">
-                        <p style="text-align: center; color: #666;">No medical records yet. Upload your first record above!</p>
-                    </div>
-                `;
-            } else {
-                recordsList.innerHTML = workerRecords.map(record => `
-                    <div class="record-card">
-                        <div class="record-header">
-                            <span class="record-doctor">${record.doctorName} - ${record.hospitalName}</span>
-                            <span class="record-date">${new Date(record.date).toLocaleDateString()}</span>
-                        </div>
-                        <p><strong>Diagnosis:</strong> ${record.diagnosis}</p>
-                        <p><strong>Prescription:</strong> ${record.prescription}</p>
-                        ${record.notes ? `<p><strong>Notes:</strong> ${record.notes}</p>` : ''}
-                        ${record.nextVisit ? `<p><strong>Next Visit:</strong> ${new Date(record.nextVisit).toLocaleDateString()}</p>` : ''}
-                    </div>
-                `).join('');
-            }
-        }
+/* Worker QR Scan *//* Worker QR Scan */
+function startWorkerScan() {
+  document.getElementById("workerReader").style.display = "block";
+  document.getElementById("workerStopBtn").style.display = "inline-block";
+  if (workerScanner) { workerScanner.clear(); }
+  workerScanner = new Html5Qrcode("workerReader");
 
-        function showAccessRequests() {
-            const requestsList = document.getElementById('requestsList');
-            
-            // Simulate access requests
-            const hasRequests = Math.random() > 0.5;
-            
-            if (hasRequests) {
-                requestsList.innerHTML = `
-                    <div class="access-request">
-                        <h4>Dr. ${['Rajesh Kumar', 'Priya Sharma', 'Suresh Nair'][Math.floor(Math.random() * 3)]} - ${['Apollo Hospital', 'KIMS Hospital', 'Medical Trust'][Math.floor(Math.random() * 3)]}</h4>
-                        <p>Requested access to view your medical history</p>
-                        <p><small>Specialization: ${['Cardiology', 'General Medicine', 'Orthopedic'][Math.floor(Math.random() * 3)]} | License: ${Math.floor(Math.random() * 10000) + 'MED'}</small></p>
-                        <div class="access-buttons">
-                            <button class="btn btn-approve" onclick="approveAccess(this)">✅ Approve</button>
-                            <button class="btn btn-deny" onclick="denyAccess(this)">❌ Deny</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                requestsList.innerHTML = `
-                    <div class="record-card">
-                        <p style="text-align: center; color: #666;">No pending access requests</p>
-                    </div>
-                `;
-            }
-        }
+  workerScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, decodedText => {
+    try {
+      let data = JSON.parse(decodedText);
+      if (patients[data.aadhar]) {
+        currentPatient = patients[data.aadhar]; // set current patient
+        stopWorkerScan();
+        showPatientDashboard(); // redirect to patient dashboard
+      } else {
+        alert("Patient not found!");
+        stopWorkerScan();
+      }
+    } catch (e) {
+      alert("Invalid QR");
+      stopWorkerScan();
+    }
+  });
+}
 
-        function approveAccess(button) {
-            showNotification('Access approved! Doctor can now view your records.', 'success');
-            button.parentElement.parentElement.remove();
-            setTimeout(showAccessRequests, 1000);
-        }
+function stopWorkerScan(){
+  if(workerScanner){
+    workerScanner.stop().then(()=>{
+      document.getElementById("workerReader").style.display="none";
+      document.getElementById("workerStopBtn").style.display="none";
+    });
+  }
+}
 
-        function denyAccess(button) {
-            showNotification('Access denied.', 'info');
-            button.parentElement.parentElement.remove();
-            setTimeout(showAccessRequests, 1000);
-        }
 
-        // File handling functions
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('dragover');
-        }
-
-        function handleDragLeave(e) {
-            e.currentTarget.classList.remove('dragover');
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
-        }
-
-        function handleFiles(files) {
-            Array.from(files).forEach(file => {
-                if (file.size > 10 * 1024 * 1024) {
-                    showNotification(`File ${file.name} is too large. Max size is 10MB.`, 'error');
-                    return;
-                }
-                
-                const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-                if (!allowedTypes.includes(file.type)) {
-                    showNotification(`File ${file.name} is not supported. Please upload PDF, JPG, or PNG files.`, 'error');
-                    return;
-                }
-                
-                console.log(`File ready for upload: ${file.name}`);
-            });
-        }
-
-        function uploadFile() {
-            const fileInput = document.getElementById('fileInput');
-            const recordType = document.getElementById('recordType').value;
-            
-            if (fileInput.files.length === 0) {
-                showNotification('Please select files to upload.', 'error');
-                return;
-            }
-            
-            // Simulate file upload and create record
-            const uploadRecord = {
-                id: Date.now().toString(),
-                patientHealthId: currentUser.healthId,
-                doctorName: 'Self-uploaded',
-                hospitalName: 'Patient Upload',
-                date: new Date().toISOString(),
-                diagnosis: `Uploaded ${recordType} document`,
-                prescription: `Document: ${Array.from(fileInput.files).map(f => f.name).join(', ')}`,
-                notes: `Patient uploaded ${fileInput.files.length} file(s) of type: ${recordType}`
-            };
-            
-            healthRecords.push(uploadRecord);
-            localStorage.setItem('healthRecords', JSON.stringify(healthRecords));
-            
-            showNotification(`${fileInput.files.length} file(s) uploaded successfully!`, 'success');
-            fileInput.value = '';
-            loadWorkerRecords(currentUser.healthId);
-        }
-
-        function downloadHealthCard() {
-            if (!currentUser) return;
-            
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 400;
-            canvas.height = 250;
-            
-            // Create gradient background
-            const gradient = ctx.createLinearGradient(0, 0, 400, 250);
-            gradient.addColorStop(0, '#667eea');
-            gradient.addColorStop(1, '#764ba2');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, 400, 250);
-            
-            // Add content
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 20px Arial';
-            ctx.fillText('Digital Health Card', 20, 40);
-            
-            ctx.font = '16px Arial';
-            ctx.fillText(`Name: ${currentUser.name}`, 20, 80);
-            ctx.fillText(`Health ID: ${currentUser.healthId}`, 20, 110);
-            ctx.fillText(`Phone: ${currentUser.phone}`, 20, 140);
-            ctx.fillText('Kerala Migrant Worker Healthcare', 20, 170);
-            ctx.fillText(`Registered: ${new Date(currentUser.registrationDate).toLocaleDateString()}`, 20, 200);
-            
-            // Download
-            const link = document.createElement('a');
-            link.download = `health-card-${currentUser.healthId}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-            
-            showNotification('Health card downloaded!', 'success');
-        }
-
-        function loadSampleData() {
-            // Add some sample workers and records if storage is empty
-            if (registeredWorkers.length === 0) {
-                const sampleWorkers = [
-                    {
-                        name: 'Ramesh Kumar',
-                        phone: '9876543210',
-                        aadhaar: '123456789012',
-                        state: 'bihar',
-                        location: 'Kochi, Kerala',
-                        healthId: 'HW12345678',
-                        registrationDate: '2024-01-15T10:30:00.000Z',
-                        records: []
-                    }
-                ];
-                
-                const sampleRecords = [
-                    {
-                        id: '1',
-                        patientHealthId: 'HW12345678',
-                        doctorName: 'Dr. Priya Nair',
-                        hospitalName: 'KIMS Hospital',
-                        date: '2024-01-20T09:00:00.000Z',
-                        diagnosis: 'Routine health checkup - All parameters normal',
-                        prescription: 'Multivitamin supplements, Continue regular diet',
-                        notes: 'Patient in good health, advised regular exercise'
-                    }
-                ];
-                
-                registeredWorkers.push(...sampleWorkers);
-                healthRecords.push(...sampleRecords);
-                localStorage.setItem('registeredWorkers', JSON.stringify(registeredWorkers));
-                localStorage.setItem('healthRecords', JSON.stringify(healthRecords));
-            }
-        }
-
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            const bgColors = {
-                success: '#28a745',
-                error: '#dc3545',
-                info: '#667eea',
-                warning: '#ffc107'
-            };
-            
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${bgColors[type] || bgColors.info};
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                z-index: 1000;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                max-width: 300px;
-                animation: slideIn 0.3s ease;
-            `;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => document.body.removeChild(notification), 300);
-            }, 4000);
-        }
-
-        function goBack() {
-            document.getElementById('userTypeSelection').style.display = 'flex';
-            
-            document.querySelectorAll('.module').forEach(module => {
-                module.classList.remove('active');
-            });
-            
-            // Reset all forms
-            document.querySelectorAll('form').forEach(form => form.reset());
-            document.querySelectorAll('.error-message, .success-message').forEach(msg => {
-                msg.style.display = 'none';
-            });
-            document.querySelectorAll('input, select').forEach(input => {
-                input.classList.remove('error', 'valid');
-            });
-            
-            // Reset module displays
-            document.getElementById('workerLogin').style.display = 'none';
-            document.getElementById('workerRegistration').style.display = 'none';
-            document.getElementById('healthIdDisplay').style.display = 'none';
-            document.getElementById('workerDashboard').style.display = 'none';
-            document.getElementById('qrScanner').style.display = 'none';
-            document.getElementById('patientRecords').style.display = 'none';
-            
-            currentUser = null;
-            currentModule = null;
-        }
-
-        // Add back buttons
-        document.querySelectorAll('.module h2').forEach(header => {
-            const backBtn = document.createElement('button');
-            backBtn.className = 'btn btn-secondary';
-            backBtn.textContent = '← Back';
-            backBtn.onclick = goBack;
-            backBtn.style.float = 'right';
-            backBtn.style.marginTop = '-10px';
-            header.appendChild(backBtn);
-        });
-
-        // Add notification CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
+  </script>
 </body>
 </html>
